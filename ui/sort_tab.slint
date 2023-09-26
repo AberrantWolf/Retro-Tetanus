@@ -1,0 +1,24 @@
+import { TabWidget , VerticalBox, GroupBox, LineEdit, Button} from "std-widgets.slint";
+import { Constants } from "constants.slint";
+
+export component SortTabView inherits Rectangle {
+	background: brown;
+	VerticalBox {
+		HorizontalLayout {
+			spacing: Constants.pad-amount;
+			Button {  }
+			LineEdit { 
+				placeholder-text: "Path to your ROMs...";
+			}
+		}
+
+		Text {
+			text: "Placeholder A";
+		}
+		
+		// Filler rectangle
+		Rectangle {
+			background: darkred;
+		}
+	}
+}
