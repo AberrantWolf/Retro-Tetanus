@@ -1,14 +1,32 @@
 import { TabWidget , VerticalBox, GroupBox, LineEdit, Button} from "std-widgets.slint";
 import { Constants } from "./constants.slint";
 
+export global Sorting {
+	callback get-source-path();
+	callback get-dest-path();
+	in-out property <string> source-path;
+	in-out property <string> dest-path;
+}
+
 export component SortTabView inherits Rectangle {
 	background: brown;
+	callback choose-source-path <=> source-path-button.clicked;
+
 	VerticalBox {
 		HorizontalLayout {
 			spacing: Constants.pad-amount;
-			Button {  }
+			source-path-button := Button { clicked => { Sorting.get-source-path(); } }
 			LineEdit { 
 				placeholder-text: "Path to your ROMs...";
+				text: Sorting.source-path;
+			}
+		}
+		HorizontalLayout {
+			spacing: Constants.pad-amount;
+			dest-path-button := Button { clicked => { Sorting.get-dest-path(); }}
+			LineEdit { 
+				placeholder-text: "Path where your ROMs go...";
+				text: Sorting.dest-path;
 			}
 		}
 
