@@ -10,7 +10,10 @@ async fn main() {
     app.global::<Sorting>().on_get_source_path(move || {
         let app_handle = app_handle.clone();
         tokio::spawn(async move {
-            let file = AsyncFileDialog::new().pick_folder().await;
+            let file = AsyncFileDialog::new()
+                .set_title("Select Source")
+                .pick_folder()
+                .await;
             if file.is_none() {
                 return;
             }
@@ -30,7 +33,10 @@ async fn main() {
     app.global::<Sorting>().on_get_dest_path(move || {
         let app_handle = app_handle.clone();
         tokio::spawn(async move {
-            let file = AsyncFileDialog::new().pick_folder().await;
+            let file = AsyncFileDialog::new()
+                .set_title("Select Destination")
+                .pick_folder()
+                .await;
             if file.is_none() {
                 return;
             }
