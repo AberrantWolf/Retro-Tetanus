@@ -1,4 +1,4 @@
-import { TabWidget , VerticalBox, GroupBox, LineEdit, Button} from "std-widgets.slint";
+import { TabWidget , VerticalBox, GroupBox, LineEdit, Button, StandardTableView} from "std-widgets.slint";
 import { Constants } from "./constants.slint";
 
 export global Sorting {
@@ -9,7 +9,7 @@ export global Sorting {
 }
 
 export component SortTabView inherits Rectangle {
-	background: brown;
+	// background: brown;
 	callback choose-source-path <=> source-path-button.clicked;
 
 	VerticalBox {
@@ -19,6 +19,7 @@ export component SortTabView inherits Rectangle {
 			LineEdit { 
 				placeholder-text: "Path to your ROMs...";
 				text: Sorting.source-path;
+				enabled: false;
 			}
 		}
 		HorizontalLayout {
@@ -27,16 +28,28 @@ export component SortTabView inherits Rectangle {
 			LineEdit { 
 				placeholder-text: "Path where your ROMs go...";
 				text: Sorting.dest-path;
+				enabled: false;
 			}
 		}
+
+		StandardTableView { 
+			columns: [
+				{title: "File"},
+				{title: "Path"},
+				{title: "ROM"},
+				{title: "Console"},
+				{title: "Region"},
+			];
+			rows: [];
+		 }
 
 		Text {
 			text: "Placeholder A";
 		}
 		
 		// Filler rectangle
-		Rectangle {
-			background: darkred;
-		}
+		// Rectangle {
+		// 	background: darkred;
+		// }
 	}
 }
