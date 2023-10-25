@@ -1,9 +1,10 @@
 use std::path::PathBuf;
 
+use egui::Widget;
 use rfd::FileDialog;
 
 use eframe::egui;
-use egui_extras::{TableBuilder, Column};
+use egui_extras::{Column, TableBuilder};
 use walkdir::WalkDir;
 
 struct SourceListing {
@@ -30,11 +31,16 @@ impl eframe::App for TetanusApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("Retro Tetanus");
-            ui.horizontal(|ui|{
+            ui.horizontal(|ui| {
                 ui.label("Source Path");
-                ui.add(egui::TextEdit::singleline(&mut self.source_path).hint_text("Path to where all your stuff is at..."));
+                ui.add(
+                    egui::TextEdit::singleline(&mut self.source_path)
+                        .hint_text("Path to where all your stuff is at..."),
+                );
                 if ui.button("Browse").clicked() {
-                    let picked = FileDialog::new().set_directory(&self.source_path).pick_folder();
+                    let picked = FileDialog::new()
+                        .set_directory(&self.source_path)
+                        .pick_folder();
                     if let Some(directory) = picked {
                         self.source_path = directory.to_str().unwrap().to_owned();
                     }
@@ -46,8 +52,9 @@ impl eframe::App for TetanusApp {
                 for entry in WalkDir::new(&self.source_path) {
                     match entry {
                         Ok(valid_entry) => {
-                            if valid_entry.file_type().is_dir() { continue; }
-
+                            if valid_entry.file_type().is_dir() {
+                                continue;
+                            }
 
                             let stem = if let Some(stem) = &valid_entry.path().file_stem() {
                                 stem.to_string_lossy().into()
@@ -55,7 +62,8 @@ impl eframe::App for TetanusApp {
                                 "".to_owned()
                             };
 
-                            let extension = if let Some(extension) = valid_entry.path().extension() {
+                            let extension = if let Some(extension) = valid_entry.path().extension()
+                            {
                                 extension.to_string_lossy().into()
                             } else {
                                 "".into()
@@ -67,31 +75,44 @@ impl eframe::App for TetanusApp {
                                 stem,
                                 extension,
                             });
-                        },
+                        }
                         Err(err) => println!("Error entry: {}", err),
                     }
                 }
-                print!("Found something like {}", &self.source_listings.len());
+                println!("Found something like {}", &self.source_listings.len());
             }
             ui.separator();
             let text_style = egui::TextStyle::Body;
             let row_height = ui.text_style_height(&text_style);
-            egui::ScrollArea::both().auto_shrink([false, false]).show_rows(ui, row_height, self.source_listings.len(), |ui, row_range| {
-                egui::Grid::new("source_listing_grid").start_row(row_range.start).num_columns(2).show(ui, |ui|{
-                    for row in row_range {
-                        let listing = &self.source_listings[row];
-
-                        ui.label(&listing.stem);
-                        ui.label(&listing.extension);
-                        ui.end_row();
+            TableBuilder::new(ui)
+                .column(Column::auto().resizable(true).clip(true))
+                .column(Column::remainder())
+                .header(20.0, |mut header| {
+                    header.col(|ui| {
+                        ui.heading("File");
+                    });
+                    header.col(|ui| {
+                        ui.heading("Ext");
+                    });
+                })
+                .body(|mut body| {
+                    for listing in &self.source_listings {
+                        body.row(row_height, |mut row| {
+                            row.col(|ui| {
+                                egui::Label::new(&listing.stem).wrap(false).ui(ui);
+                            });
+                            row.col(|ui| {
+                                egui::Label::new(&listing.extension).wrap(false).ui(ui);
+                            });
+                        })
                     }
                 });
-            });
         });
     }
 }
 
-fn main() -> Result<(), eframe::Error> {
+#[tokio::main]
+async fn main() -> Result<(), eframe::Error> {
     let app_options = eframe::NativeOptions {
         initial_window_size: Some(egui::vec2(480.0, 240.0)),
         ..Default::default()
@@ -100,8 +121,6 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "Retro Tetanus",
         app_options,
-        Box::new(|cc| {
-            Box::<TetanusApp>::default()
-        }),
+        Box::new(|cc| Box::<TetanusApp>::default()),
     )
 }
